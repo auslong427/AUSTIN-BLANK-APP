@@ -18,8 +18,19 @@ A simple Streamlit app template for you to modify!
    $ streamlit run streamlit_app.py
    ```
 
+qxtbxt-codex/add-spreadsheet-feature-with-editable-grid
 ### Using the spreadsheet feature
 
 The app now displays an editable table using Streamlit's built-in **data
 editor**. Update the cells directly in your browser and click **Save to CSV** to
 write the results to `tasks.csv`.
+=======
+### Using the sales order tracker
+
+Upload a CSV file with your sales orders or use the bundled `sample_sales_orders.csv`.
+The app automatically maps common column names, generates `item_id` values and
+marks late orders. Edit the table directly in your browser and click **Save
+orders** to write updates to `saved_orders.csv`.
+
+ main
+ 

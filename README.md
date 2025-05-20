@@ -17,3 +17,13 @@ A simple Streamlit app template for you to modify!
    ```
    $ streamlit run streamlit_app.py
    ```
+
+### Using the sales order tracker
+
+Upload a CSV file with your sales orders or use the bundled `sample_sales_orders.csv`.
+The app automatically maps common column names, generates `item_id` values and
+marks late orders. Edit the table directly in your browser and click **Save
+orders** to write updates to `saved_orders.csv`.
+
+To launch the web-hosted version immediately, click the **Open in Streamlit**
+badge near the top of this README.

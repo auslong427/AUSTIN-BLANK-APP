@@ -4,9 +4,9 @@
   "image": "mcr.microsoft.com/devcontainers/python:1-3.11-bullseye",
   "customizations": {
     "codespaces": {
-      "openFiles": [
+  "openFiles": [
         "README.md",
-        "streamlit_app.py"
+        "config.json"
       ]
     },
     "vscode": {
@@ -17,17 +17,10 @@
       ]
     }
   },
-  "updateContentCommand": "[ -f packages.txt ] && sudo apt update && sudo apt upgrade -y && sudo xargs apt install -y <packages.txt; [ -f requirements.txt ] && pip3 install --user -r requirements.txt; pip3 install --user streamlit; echo '✅ Packages installed and Requirements met'",
+  "updateContentCommand": "[ -f packages.txt ] && sudo apt update && sudo apt upgrade -y && sudo xargs apt install -y <packages.txt; [ -f requirements.txt ] && pip3 install --user -r requirements.txt; echo '✅ Packages installed and Requirements met'",
   "postAttachCommand": {
-    "server": "streamlit run streamlit_app.py --server.enableCORS false --server.enableXsrfProtection false"
+    "server": "echo 'Container ready'"
   },
-  "portsAttributes": {
-    "8501": {
-      "label": "Application",
-      "onAutoForward": "openPreview"
-    }
-  },
-  "forwardPorts": [
-    8501
-  ]
+  "portsAttributes": {},
+  "forwardPorts": []
 }

@@ -1,0 +1,16 @@
+{
+  "siteName": "ABB Sales Orders",
+  "theme": {
+    "primaryColor": "#E60012",
+    "secondaryColor": "#FFFFFF",
+    "textColor": "#333333"
+  },
+  "columnMappings": {
+    "Cust. Material": "material",
+    "First Date": "requestedDate",
+    "Est. Ship Date": "expectedDelivery"
+  },
+  "notifications": {
+    "email": "orders@example.com"
+  }
+}

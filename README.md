@@ -17,3 +17,9 @@ A simple Streamlit app template for you to modify!
    ```
    $ streamlit run streamlit_app.py
    ```
+
+### Using the spreadsheet feature
+
+The app now displays an editable table using Streamlit's built-in **data
+editor**. Update the cells directly in your browser and click **Save to CSV** to
+write the results to `tasks.csv`.

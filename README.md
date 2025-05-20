@@ -24,3 +24,4 @@ Upload a CSV file with your sales orders or use the bundled `sample_sales_orders
 The app automatically maps common column names, generates `item_id` values and
 marks late orders. Edit the table directly in your browser and click **Save
 orders** to write updates to `saved_orders.csv`.
+

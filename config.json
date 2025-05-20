@@ -1,0 +1,8 @@
+{
+  "appName": "Task Tracker",
+  "tasks": [
+    {"Task": "Plan project", "Owner": "Alice", "Done": false},
+    {"Task": "Develop feature", "Owner": "Bob", "Done": false},
+    {"Task": "Write docs", "Owner": "Charlie", "Done": false}
+  ]
+}

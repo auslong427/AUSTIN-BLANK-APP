@@ -1,19 +1,13 @@
-# 🎈 Blank app template
+# ⚡ Power Apps Task Tracker
 
-A simple Streamlit app template for you to modify!
+This project contains a minimal configuration file for a basic Power Apps canvas app. Import the provided **config.json** file to load sample tasks and customize the app.
 
-[![Open in Streamlit](https://static.streamlit.io/badges/streamlit_badge_black_white.svg)](https://blank-app-template.streamlit.app/)
+## Getting Started
 
-### How to run it on your own machine
+1. Sign in to [Microsoft Power Apps](https://make.powerapps.com/).
+2. Create a new **Canvas app from blank**.
+3. Add a **Data** connection and choose **Import from Excel**.
+4. Upload `config.json` when prompted.
+5. The tasks from the configuration file will appear in a table you can edit and extend.
 
-1. Install the requirements
-
-   ```
-   $ pip install -r requirements.txt
-   ```
-
-2. Run the app
-
-   ```
-   $ streamlit run streamlit_app.py
-   ```
+Modify `config.json` with your own fields or additional tasks before importing if desired.

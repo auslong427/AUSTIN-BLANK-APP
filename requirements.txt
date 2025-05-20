@@ -1,1 +1,1 @@
-streamlit
+# No Python dependencies are required for this Power Apps configuration

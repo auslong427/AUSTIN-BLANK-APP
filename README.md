@@ -1,27 +1,11 @@
-# 🎈 Blank app template
+# Dynasty Desktop
 
-A simple Streamlit app template for you to modify!
+Ready-to-build Tauri + React (Vite + TS) app with baked-in dynasty analytics.
 
-[![Open in Streamlit](https://static.streamlit.io/badges/streamlit_badge_black_white.svg)](https://blank-app-template.streamlit.app/)
+## Usage
 
-### How to run it on your own machine
+1. **Fork this repo**.
+2. In GitHub, go to **Actions → build-tauri → Run workflow**.
+3. After it finishes, download the `dynasty-desktop` artifact. It contains the Windows installer and portable `.exe`.
 
-1. Install the requirements
-
-   ```
-   $ pip install -r requirements.txt
-   ```
-
-2. Run the app
-
-   ```
-   $ streamlit run streamlit_app.py
-   ```
-
-### Using the sales order tracker
-
-Upload a CSV file with your sales orders or use the bundled `sample_sales_orders.csv`.
-The app automatically maps common column names, generates `item_id` values and
-marks late orders. Edit the table directly in your browser and click **Save
-orders** to write updates to `saved_orders.csv`.
-
+No API keys or extra setup required. All external data (Sleeper, DynastyProcess) is public.

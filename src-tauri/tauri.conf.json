@@ -14,7 +14,10 @@
   },
   "plugins": {
     "http": {
+3i225p-codex/create-tauri-desktop-app-with-advanced-analytics
+=======
 r4230h-codex/create-tauri-desktop-app-with-advanced-analytics
+main
       "permissions": [
         {
           "identifier": "http:default",
@@ -24,9 +27,12 @@ r4230h-codex/create-tauri-desktop-app-with-advanced-analytics
             { "url": "https://cdn.jsdelivr.net/**" }
           ]
         }
+3i225p-codex/create-tauri-desktop-app-with-advanced-analytics
+=======
 =======
 
 main
+ main
       ]
     }
   }

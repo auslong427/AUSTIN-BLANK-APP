@@ -1,27 +1,19 @@
-# 🎈 Blank app template
+# Dynasty Browser
 
-A simple Streamlit app template for you to modify!
+Single-file dynasty analytics app that runs entirely in your browser. Just open `browser.html`—no installs, no API keys.
 
-[![Open in Streamlit](https://static.streamlit.io/badges/streamlit_badge_black_white.svg)](https://blank-app-template.streamlit.app/)
+## Quick start
+1. Download this repository as a ZIP.
+2. Double-click `browser.html`.
 
-### How to run it on your own machine
+The page will:
+- **Ingest** public data: DynastyProcess values-players & values-picks (weekly), FantasyCalc values (daily), Fantasy Football Calculator ADP (daily), and Sleeper league rosters.
+- **Normalize** players to DynastyProcess `db_playerids`, attaching position, age and team metadata.
+- **Blend** the sources into a composite value:
+  
+  `V = w1 * DP_value + w2 * FC_value + w3 * f(ADP)`
+  
+  (defaults: w1=0.5, w2=0.3, w3=0.2, `f(ADP) = 300 - ADP`)
+- **Serve** a dashboard with team values, positional scarcity and Monte Carlo win simulations directly in the browser.
 
-1. Install the requirements
-
-   ```
-   $ pip install -r requirements.txt
-   ```
-
-2. Run the app
-
-   ```
-   $ streamlit run streamlit_app.py
-   ```
-
-### Using the sales order tracker
-
-Upload a CSV file with your sales orders or use the bundled `sample_sales_orders.csv`.
-The app automatically maps common column names, generates `item_id` values and
-marks late orders. Edit the table directly in your browser and click **Save
-orders** to write updates to `saved_orders.csv`.
-
+All analytics run client-side with caching (24h for FantasyCalc/ADP, weekly for DynastyProcess). Drop the file anywhere and open it to get updated numbers.

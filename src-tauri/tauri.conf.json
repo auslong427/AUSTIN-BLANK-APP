@@ -14,7 +14,19 @@
   },
   "plugins": {
     "http": {
+r4230h-codex/create-tauri-desktop-app-with-advanced-analytics
+      "permissions": [
+        {
+          "identifier": "http:default",
+          "allow": [
+            { "url": "https://api.sleeper.app/**" },
+            { "url": "https://raw.githubusercontent.com/**" },
+            { "url": "https://cdn.jsdelivr.net/**" }
+          ]
+        }
+=======
 
+main
       ]
     }
   }

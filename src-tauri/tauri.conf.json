@@ -14,15 +14,7 @@
   },
   "plugins": {
     "http": {
-      "permissions": [
-        {
-          "identifier": "http:default",
-          "allow": [
-            { "url": "https://api.sleeper.app/**" },
-            { "url": "https://raw.githubusercontent.com/**" },
-            { "url": "https://cdn.jsdelivr.net/**" }
-          ]
-        }
+
       ]
     }
   }

@@ -1,0 +1,21 @@
+name: build-tauri
+on:
+  workflow_dispatch:
+jobs:
+  build:
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+      - uses: actions-rs/toolchain@v1
+        with:
+          toolchain: stable
+          override: true
+      - run: npm install
+      - run: npm run tauri build
+      - uses: actions/upload-artifact@v4
+        with:
+          name: dynasty-desktop
+          path: src-tauri/target/release/bundle/**

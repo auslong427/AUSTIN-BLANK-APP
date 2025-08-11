@@ -3,7 +3,11 @@
 <head>
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+f4bapz-codex/create-tauri-desktop-app-with-advanced-analytics
 <title>Dynasty Browser</title>
+=======
+<title>Dynasty Desktop (Browser)</title>
+ main
 <style>
 :root {
   --bg: #0b0f14;
@@ -37,8 +41,7 @@ body{margin:0;background:linear-gradient(180deg,#0a0e13,#0b1118 30%,#0b0f14);
 <div class="container">
   <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px">
     <div>
-      <div style="font-weight:600;font-size:22px">Dynasty Browser</div>
-      <div style="color:var(--muted)">Ingest → Normalize → Blend → Serve</div>
+
     </div>
     <div style="display:flex;gap:8px;align-items:center">
       <input id="league" value="1221258906357997568" style="padding:8px;border-radius:6px;border:1px solid var(--border);background:transparent;color:var(--fg)" />
@@ -49,61 +52,18 @@ body{margin:0;background:linear-gradient(180deg,#0a0e13,#0b1118 30%,#0b0f14);
   <div id="content"></div>
 </div>
 <script>
-const DAY = 86400000;
-const WEEK = 7*DAY;
-const WEIGHTS = { dp:0.5, fc:0.3, adp:0.2 };
 
-async function fetchCached(key,url,ttl,asText=false){
-  const now=Date.now();
-  const cached=localStorage.getItem(key);
-  if(cached){
-    try{
-      const obj=JSON.parse(cached);
-      if(now-obj.time<ttl) return obj.data;
-    }catch{}
-  }
-  const res=await fetch(url);
-  if(!res.ok) throw new Error(url+" -> "+res.status);
-  const data=asText? await res.text() : await res.json();
-  localStorage.setItem(key, JSON.stringify({time:now,data}));
-  return data;
-}
-
-async function getJSON(url){
-  const res=await fetch(url);
-  if(!res.ok) throw new Error(url+" -> "+res.status);
-  return res.json();
-}
-
-function parseCSV(text){
-  if(!text) return [];
-  const lines=text.replace(/^\uFEFF/,'').split(/\r?\n/);
-  let head=null; const rows=[];
-  for(const line of lines){
-    if(!line.trim()) continue;
-    const cells=[]; let c="",q=false;
-    for(let i=0;i<line.length;i++){
-      const ch=line[i];
-      if(ch==='"'){ if(q && line[i+1]==='"'){c+='"';i++;} else q=!q; }
       else if(ch===',' && !q){ cells.push(c); c=""; }
       else c+=ch;
     }
     cells.push(c);
     if(!head){ head=cells; continue; }
-    const row={}; head.forEach((h,i)=> row[h]=(cells[i]||"").trim());
+
     rows.push(row);
   }
   return rows;
 }
 
-function findCol(obj,regex,fallback){ return Object.keys(obj||{}).find(c=>regex.test(c))||fallback; }
-function std(arr){ const m=arr.reduce((a,b)=>a+b,0)/arr.length; return Math.sqrt(arr.reduce((a,b)=>a+(b-m)**2,0)/arr.length); }
-function simulateSeasonWins(teamValues,weeks,iters=2000){
-  const n=teamValues.length; const sigma=Math.max(50, std(teamValues)); const wins=new Array(n).fill(0);
-  function rnd(){let u=0,v=0;while(!u)u=Math.random();while(!v)v=Math.random();return Math.sqrt(-2*Math.log(u))*Math.cos(2*Math.PI*v);}
-  for(let k=0;k<iters;k++){
-    const w=new Array(n).fill(0);
-    for(let week=0;week<weeks;week++){
       for(let a=0;a<n;a++){
         for(let b=a+1;b<n;b++){
           const sa=teamValues[a]+sigma*rnd();
@@ -123,122 +83,7 @@ async function load(){
   const content=document.getElementById('content');
   status.style.display='block'; status.textContent='Loading...'; content.innerHTML='';
   try{
-    // Ingest
-    const league=await getJSON(`https://api.sleeper.app/v1/league/${leagueId}`);
-    const teams=Number(league.total_rosters)||12;
-    const sf=(league.roster_positions||[]).includes('SUPER_FLEX');
-    const ppr=league.scoring_settings?.ppr ?? 1;
-    const [idsCSV,dpPlayersCSV,dpPicksCSV,fcValues,ffcADP,users,rosters,playersDir]=await Promise.all([
-      fetchCached('idsCSV','https://raw.githubusercontent.com/dynastyprocess/data/gh-pages/files/db_playerids.csv',WEEK,true),
-      fetchCached('dpPlayers','https://raw.githubusercontent.com/dynastyprocess/data/gh-pages/files/values-players.csv',WEEK,true),
-      fetchCached('dpPicks','https://raw.githubusercontent.com/dynastyprocess/data/gh-pages/files/values-picks.csv',WEEK,true),
-      fetchCached('fcValues',`https://api.fantasycalc.com/values/current?isDynasty=true&numQbs=${sf?2:1}&numTeams=${teams}&ppr=${ppr}`,DAY),
-      fetchCached('ffcADP',`https://fantasyfootballcalculator.com/api/v1/adp/dynasty?teams=${teams}`,DAY),
-      getJSON(`https://api.sleeper.app/v1/league/${leagueId}/users`),
-      getJSON(`https://api.sleeper.app/v1/league/${leagueId}/rosters`),
-      getJSON('https://api.sleeper.app/v1/players/nfl')
-    ]);
 
-    // Normalize
-    const ids=parseCSV(idsCSV);
-    const dpVals=parseCSV(dpPlayersCSV);
-    const pickRows=parseCSV(dpPicksCSV);
-    const sidCol=findCol(ids[0],/sleeper_id/i,'sleeper_id');
-    const fcCol=findCol(ids[0],/(fc|fantasycalc).*id/i,'fc_id');
-    const ffcCol=findCol(ids[0],/(ffc|ffcalc).*id/i,'ffc_id');
-    const posCol=findCol(ids[0],/pos/i,'position');
-    const ageCol=findCol(ids[0],/age/i,'age');
-    const teamCol=findCol(ids[0],/team/i,'team');
-    const fpColI=findCol(ids[0],/(fp_|fantasypros).*id/i,'fantasypros_id');
-    const fpColV=findCol(dpVals[0],/^fp_id$/i,'fp_id');
-    const v1Col=findCol(dpVals[0],/value_1qb/i,'value_1qb');
-    const v2Col=findCol(dpVals[0],/value_2qb/i,'value_2qb');
-    const dpByFP=new Map(dpVals.map(r=>[r[fpColV],{v1:+r[v1Col]||0,v2:+r[v2Col]||0}]));
-
-    const fcList=(fcValues.players||fcValues||[]);
-    const fcIdKey=fcList.length? Object.keys(fcList[0]).find(k=>/player.*id/i.test(k)) || 'playerId':'playerId';
-    const fcValKey=fcList.length? Object.keys(fcList[0]).find(k=>/value/i.test(k)) || 'value':'value';
-    const fcMap=new Map(fcList.map(p=>[String(p[fcIdKey]),Number(p[fcValKey])||0]));
-
-    const adpList=(ffcADP.players||ffcADP||[]);
-    const adpIdKey=adpList.length? Object.keys(adpList[0]).find(k=>/(player_id|id)$/i.test(k)) || 'player_id':'player_id';
-    const adpValKey=adpList.length? Object.keys(adpList[0]).find(k=>/adp/i.test(k)) || 'adp':'adp';
-    const adpMap=new Map(adpList.map(p=>[String(p[adpIdKey]),Number(p[adpValKey])||0]));
-
-    const players=new Map();
-    ids.forEach(r=>{
-      const sid=r[sidCol]; if(!sid) return;
-      const info={pos:r[posCol],age:+r[ageCol],team:r[teamCol],dp1:0,dp2:0,fc:0,adp:0};
-      const dp=dpByFP.get(r[fpColI]); if(dp){ info.dp1=dp.v1; info.dp2=dp.v2; }
-      if(r[fcCol]) info.fc=fcMap.get(String(r[fcCol]))||0;
-      if(r[ffcCol]) info.adp=adpMap.get(String(r[ffcCol]))||0;
-      players.set(sid,info);
-    });
-
-    const pickCol=findCol(pickRows[0],/pick|description/i,'pick');
-    const sfCol=findCol(pickRows[0],/sf|superflex/i,'sf');
-    const oneCol=findCol(pickRows[0],/1qb|one_?qb/i,'one_qb');
-    const pickMapSF=new Map(), pickMap1QB=new Map();
-    pickRows.forEach(r=>{ pickMapSF.set(r[pickCol],Number(r[sfCol])||0); pickMap1QB.set(r[pickCol],Number(r[oneCol])||0); });
-
-    // Blend
-    function adpToValue(adp){ return adp ? Math.max(0,300-adp) : 0; }
-    const comp=new Map();
-    players.forEach((info,sid)=>{
-      const dpVal=sf?info.dp2:info.dp1;
-      const v=WEIGHTS.dp*dpVal + WEIGHTS.fc*(info.fc||0) + WEIGHTS.adp*adpToValue(info.adp);
-      comp.set(sid,v);
-    });
-    function playerValue(pid){ return comp.get(String(pid))||0; }
-
-    // Serve
-    const byUser=new Map(users.map(u=>[u.user_id,u.display_name||u.username||u.user_id]));
-    const table=rosters.map(r=>{
-      let value=0;
-      for(const pid of (r.players||[])) value+=playerValue(pid);
-      for(const p of (r.draft_picks||[])){
-        const key=`${p.season} R${p.round}`;
-        value+=(sf?pickMapSF.get(key):pickMap1QB.get(key))||0;
-      }
-      return {team:byUser.get(r.owner_id)||r.owner_id,value};
-    }).sort((a,b)=>b.value-a.value);
-
-    const values=table.map(t=>t.value);
-    const simWins=simulateSeasonWins(values,13,2000);
-    const scarcity=(()=>{
-      const bucket={};
-      Object.entries(playersDir).forEach(([pid,p])=>{
-        const v=playerValue(pid); if(!v) return;
-        const pos=p.position||'UNK'; (bucket[pos] ||= []).push(v);
-      });
-      const out={};
-      for(const pos in bucket){
-        const arr=bucket[pos].sort((a,b)=>b-a);
-        const med=arr.length?arr[Math.floor(arr.length*0.5)]:0;
-        const rep=arr.length?arr[Math.floor(arr.length*0.67)]:0;
-        out[pos]={median:med,replacement:rep,scarcity:med-rep};
-      }
-      return out;
-    })();
-
-    // Render
-    let html=`<div class="card"><b>${league.name}</b> <span style="color:var(--muted)">Season ${league.season}</span></div>`;
-    html+=`<div class="card"><div style="font-weight:600;margin-bottom:6px">Standings & Value</div><div style="overflow:auto"><table class="table"><thead><tr class="tr"><th class="th">Team</th><th class="th">Team Value</th><th class="th">Sim Wins</th></tr></thead><tbody>`;
-    table.forEach((r,i)=>{ html+=`<tr class="tr"><td class="td">${r.team}</td><td class="td">${Math.round(r.value)}</td><td class="td">${simWins[i].toFixed(1)}</td></tr>`; });
-    html+=`</tbody></table></div></div>`;
-    html+=`<div class="grid grid-3">`;
-    for(const pos in scarcity){
-      const s=scarcity[pos];
-      html+=`<div class="card"><div style="font-weight:600">${pos}</div><div style="color:var(--muted);font-size:12px">Median ${Math.round(s.median)}</div><div style="color:var(--muted);font-size:12px">Replacement ${Math.round(s.replacement)}</div><div style="margin-top:4">PSI <b>${Math.round(s.scarcity)}</b></div></div>`;
-    }
-    html+=`</div>`;
-    status.style.display='none'; content.innerHTML=html;
-  }catch(e){
-    status.textContent='Error: '+e.message;
-  }
-}
-
-document.getElementById('load').addEventListener('click', load);
 </script>
 </body>
 </html>

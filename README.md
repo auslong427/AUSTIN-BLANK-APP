@@ -1,3 +1,4 @@
+f4bapz-codex/create-tauri-desktop-app-with-advanced-analytics
 # Dynasty Browser
 
 Single-file dynasty analytics app that runs entirely in your browser. Just open `browser.html`—no installs, no API keys.
@@ -17,3 +18,31 @@ The page will:
 - **Serve** a dashboard with team values, positional scarcity and Monte Carlo win simulations directly in the browser.
 
 All analytics run client-side with caching (24h for FantasyCalc/ADP, weekly for DynastyProcess). Drop the file anywhere and open it to get updated numbers.
+=======
+# Dynasty Desktop
+
+Ready-to-build Tauri + React (Vite + TS) app with baked-in dynasty analytics.
+
+i225p-codex/create-tauri-desktop-app-with-advanced-analytics
+## Quick start (no build tools)
+
+1. Download this repository as a ZIP.
+2. Double‑click `browser.html` and your default browser will load the app.
+
+The browser version fetches Sleeper and DynastyProcess data directly and runs all analytics on the client—no installs or API keys required.
+
+## Build the desktop `.exe`
+
+=======
+## Usage
+main
+1. **Fork this repo**.
+2. In GitHub, go to **Actions → build-tauri → Run workflow**.
+3. After it finishes, download the `dynasty-desktop` artifact. It contains the Windows installer and portable `.exe`.
+
+ 3i225p-codex/create-tauri-desktop-app-with-advanced-analytics
+All external data (Sleeper, DynastyProcess) is public and requires no additional configuration.
+=======
+No API keys or extra setup required. All external data (Sleeper, DynastyProcess) is public.
+main
+ main

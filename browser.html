@@ -1,0 +1,165 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Dynasty Desktop (Browser)</title>
+<style>
+:root {
+  --bg: #0b0f14;
+  --fg: #e6e7ea;
+  --muted: #aab0bb;
+  --card: rgba(255,255,255,0.06);
+  --border: rgba(255,255,255,0.12);
+  --accent: #0a84ff;
+  --r: 16px;
+  --sh: 0 6px 30px rgba(0,0,0,.35);
+}
+*{box-sizing:border-box} html,body{height:100%}
+body{margin:0;background:linear-gradient(180deg,#0a0e13,#0b1118 30%,#0b0f14);
+     color:var(--fg);font:14px/1.5 -apple-system,BlinkMacSystemFont,"Segoe UI",Inter,system-ui,sans-serif}
+.container{max-width:1200px;margin:0 auto;padding:20px}
+.card{background:var(--card);backdrop-filter:blur(16px) saturate(140%);
+      border:1px solid var(--border);border-radius:var(--r);box-shadow:var(--sh);padding:14px;margin-bottom:12px}
+.btn{border:1px solid var(--border);background:rgba(255,255,255,0.06);color:var(--fg);
+     padding:10px 14px;border-radius:999px;cursor:pointer}
+.btn:hover{border-color:var(--accent)}
+.btn.primary{background:white;color:black;border-color:transparent}
+.table{width:100%;border-collapse:separate;border-spacing:0}
+.th,.td{padding:10px 12px;border-bottom:1px solid var(--border);text-align:left}
+.tr:nth-child(2n){background:rgba(255,255,255,0.03)}
+.grid{display:grid;gap:12px}
+.grid-3{grid-template-columns:repeat(3,minmax(0,1fr))}
+@media (max-width: 960px){ .grid-3{grid-template-columns:1fr} }
+</style>
+</head>
+<body>
+<div class="container">
+  <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px">
+    <div>
+      <div style="font-weight:600;font-size:22px">Dynasty Desktop</div>
+      <div style="color:var(--muted)">Sleeper • DynastyProcess • Browser edition</div>
+    </div>
+    <div style="display:flex;gap:8px;align-items:center">
+      <input id="league" value="1221258906357997568" style="padding:8px;border-radius:6px;border:1px solid var(--border);background:transparent;color:var(--fg)" />
+      <button class="btn primary" id="load">Load</button>
+    </div>
+  </div>
+  <div id="status" class="card" style="display:none"></div>
+  <div id="content"></div>
+</div>
+<script>
+async function getJSON(url){
+  const res = await fetch(url); if(!res.ok) throw new Error(url+" -> "+res.status); return res.json();
+}
+async function getText(url){
+  const res = await fetch(url); if(!res.ok) throw new Error(url+" -> "+res.status); return res.text();
+}
+function parseCSV(text){
+  if(!text) return []; const lines = text.replace(/^\uFEFF/, '').split(/\r?\n/);
+  let head=null; const rows=[]; for(const line of lines){
+    if(!line.trim()) continue; const cells=[]; let c="", q=false;
+    for(let i=0;i<line.length;i++){
+      const ch=line[i];
+      if(ch==='"'){ if(q && line[i+1]==='"'){ c+='"'; i++; } else q=!q; }
+      else if(ch===',' && !q){ cells.push(c); c=""; }
+      else c+=ch;
+    }
+    cells.push(c);
+    if(!head){ head=cells; continue; }
+    const row={}; head.forEach((h,i)=> row[h]= (cells[i]||"").trim());
+    rows.push(row);
+  }
+  return rows;
+}
+function joinValuesByIDs(idsCSV, valuesCSV){
+  const ids=parseCSV(idsCSV), vals=parseCSV(valuesCSV);
+  const sidCol=Object.keys(ids[0]||{}).find(c=>/sleeper_id/i.test(c))||"sleeper_id";
+  const fpColI=Object.keys(ids[0]||{}).find(c=>/(fp_|fantasypros).*id/i.test(c))||"fantasypros_id";
+  const fpColV=Object.keys(vals[0]||{}).find(c=>/^fp_id$/i.test(c))||"fp_id";
+  const v1Col=Object.keys(vals[0]||{}).find(c=>/value_1qb/i.test(c))||"value_1qb";
+  const v2Col=Object.keys(vals[0]||{}).find(c=>/value_2qb/i.test(c))||"value_2qb";
+  const fpBySleeper=new Map(ids.map(r=>[String(r[sidCol]||"").trim(), String(r[fpColI]||"").trim()]));
+  const values=new Map(vals.map(r=>[String(r[fpColV]||"").trim(), {v1:+String(r[v1Col]||"0").replace(/[^0-9.\-]/g,""), v2:+String(r[v2Col]||"0").replace(/[^0-9.\-]/g,"")} ]));
+  const bySleeper1QB=new Map(), bySleeper2QB=new Map();
+  for(const [sid,fpid] of fpBySleeper.entries()){
+    const v=values.get(fpid); if(!v) continue;
+    if(Number.isFinite(v.v1)) bySleeper1QB.set(sid,v.v1);
+    if(Number.isFinite(v.v2)) bySleeper2QB.set(sid,v.v2);
+  }
+  return {bySleeper1QB, bySleeper2QB};
+}
+function scarcityByPosition(playersDir, valueForPid){
+  const buckets={}; for(const pid in playersDir){
+    const p=playersDir[pid]; const pos=p?.position||"UNK"; const v=valueForPid(pid); if(!v) continue;
+    (buckets[pos] ||= []).push(v);
+  }
+  const out={}; for(const pos in buckets){
+    const arr=buckets[pos].sort((a,b)=>b-a);
+    const median=arr.length?arr[Math.floor(arr.length*0.5)]:0;
+    const replacement=arr.length?arr[Math.floor(arr.length*0.67)]:0;
+    out[pos]={median,replacement,scarcity:median-replacement};
+  }
+  return out;
+}
+function std(arr){
+  const m=arr.reduce((a,b)=>a+b,0)/arr.length; return Math.sqrt(arr.reduce((a,b)=>a+(b-m)**2,0)/arr.length);
+}
+function simulateSeasonWins(teamValues,weeks,iters=2000){
+  const n=teamValues.length; const sigma=Math.max(50, std(teamValues)); const wins=new Array(n).fill(0);
+  function rnd(){let u=0,v=0;while(!u)u=Math.random();while(!v)v=Math.random();return Math.sqrt(-2*Math.log(u))*Math.cos(2*Math.PI*v);} 
+  for(let k=0;k<iters;k++){
+    const w=new Array(n).fill(0);
+    for(let week=0; week<weeks; week++){
+      for(let a=0;a<n;a++){
+        for(let b=a+1;b<n;b++){
+          const sa=teamValues[a]+sigma*rnd();
+          const sb=teamValues[b]+sigma*rnd();
+          if(sa>sb) w[a]++; else w[b]++;
+        }
+      }
+    }
+    for(let i=0;i<n;i++) wins[i]+=w[i];
+  }
+  return wins.map(x=>x/iters);
+}
+async function load(){
+  const leagueId=document.getElementById('league').value.trim();
+  const status=document.getElementById('status');
+  const content=document.getElementById('content');
+  status.style.display='block'; status.textContent='Loading...'; content.innerHTML='';
+  try{
+    const league=await getJSON(`https://api.sleeper.app/v1/league/${leagueId}`);
+    const [users, rosters]=await Promise.all([
+      getJSON(`https://api.sleeper.app/v1/league/${leagueId}/users`),
+      getJSON(`https://api.sleeper.app/v1/league/${leagueId}/rosters`)
+    ]);
+    const [idsCSV, valsCSV, playersDir]=await Promise.all([
+      getText('https://raw.githubusercontent.com/dynastyprocess/data/gh-pages/files/db_playerids.csv'),
+      getText('https://raw.githubusercontent.com/dynastyprocess/data/gh-pages/files/values-players.csv'),
+      getJSON('https://api.sleeper.app/v1/players/nfl')
+    ]);
+    const {bySleeper1QB, bySleeper2QB}=joinValuesByIDs(idsCSV, valsCSV);
+    function val(pid){return (league.roster_positions||[]).includes('SUPER_FLEX')? (bySleeper2QB.get(String(pid))||0) : (bySleeper1QB.get(String(pid))||0);}    
+    const byUser=new Map(users.map(u=>[u.user_id, u.display_name||u.username||u.user_id]));
+    const table=rosters.map(r=>{
+      let value=0; for(const pid of (r.players||[])) value+=val(pid);
+      return {team:byUser.get(r.owner_id)||r.owner_id, value};
+    }).sort((a,b)=>b.value-a.value);
+    const values=table.map(t=>t.value);
+    const simWins=simulateSeasonWins(values,13,2000);
+    const scarcity=scarcityByPosition(playersDir, pid=>val(pid));
+    let html=`<div class="card"><b>${league.name}</b> <span style="color:var(--muted)">Season ${league.season}</span></div>`;
+    html+=`<div class="card"><div style="font-weight:600;margin-bottom:6px">Standings & Value</div><div style="overflow:auto"><table class="table"><thead><tr class="tr"><th class="th">Team</th><th class="th">Team Value</th><th class="th">Sim Wins</th></tr></thead><tbody>`;
+    table.forEach((r,i)=>{html+=`<tr class="tr"><td class="td">${r.team}</td><td class="td">${Math.round(r.value)}</td><td class="td">${simWins[i].toFixed(1)}</td></tr>`;});
+    html+=`</tbody></table></div></div>`;
+    html+=`<div class="grid grid-3">`;
+    for(const pos in scarcity){const s=scarcity[pos]; html+=`<div class="card"><div style="font-weight:600">${pos}</div><div style="color:var(--muted);font-size:12px">Median ${Math.round(s.median)}</div><div style="color:var(--muted);font-size:12px">Replacement ${Math.round(s.replacement)}</div><div style="margin-top:4">PSI <b>${Math.round(s.scarcity)}</b></div></div>`;}
+    html+=`</div>`;
+    status.style.display='none'; content.innerHTML=html;
+  }catch(e){status.textContent='Error: '+e.message;}
+}
+ document.getElementById('load').addEventListener('click', load);
+</script>
+</body>
+</html>

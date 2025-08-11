@@ -14,10 +14,7 @@
   },
   "plugins": {
     "http": {
-      "scope": [
-        "https://api.sleeper.app/**",
-        "https://raw.githubusercontent.com/**",
-        "https://cdn.jsdelivr.net/**"
+
       ]
     }
   }

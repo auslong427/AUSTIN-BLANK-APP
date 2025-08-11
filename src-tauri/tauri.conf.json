@@ -1,0 +1,24 @@
+{
+  "productName": "Dynasty Desktop",
+  "version": "1.0.0",
+  "build": {
+    "beforeDevCommand": "npm run dev",
+    "beforeBuildCommand": "npm run build",
+    "frontendDist": "../dist"
+  },
+  "bundle": {
+    "targets": ["msi", "nsis"]
+  },
+  "app": {
+    "windows": [{ "title": "Dynasty Desktop", "width": 1280, "height": 840, "decorations": true }]
+  },
+  "plugins": {
+    "http": {
+      "scope": [
+        "https://api.sleeper.app/**",
+        "https://raw.githubusercontent.com/**",
+        "https://cdn.jsdelivr.net/**"
+      ]
+    }
+  }
+}
